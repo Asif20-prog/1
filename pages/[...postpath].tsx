@@ -3,8 +3,15 @@ import Head from 'next/head';
 import { GetServerSideProps } from 'next';
 import { GraphQLClient, gql } from 'graphql-request';
 import { NextRequest, NextResponse } from 'next/server';
-import * as Sentry from "@sentry/nextjs";
 import RateLimiter from '../utils/rateLimiter';
+
+// Optional Sentry Import (to prevent build errors)
+let Sentry;
+try {
+    Sentry = require("@sentry/nextjs");
+} catch (error) {
+    console.warn("Sentry not installed, skipping...");
+}
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
     try {
@@ -81,7 +88,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             },
         };
     } catch (error) {
-        Sentry.captureException(error);
+        if (Sentry) Sentry.captureException(error);
         return { notFound: true };
     }
 };
